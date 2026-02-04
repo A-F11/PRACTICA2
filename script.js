@@ -5,224 +5,268 @@
 // Usuario BD: root / Password: admin123
 // ============================================
 
-// Variables globales (accesibles desde toda la aplicación)
-var registros = [];
-var contador = 0;
-var API_KEY = "sk_12345abcdef67823GHIJKLMNYU"; // Clave de API hardcodeada
-var DB_CONNECTION_STRING = "Server=localhost;Database=usuarios_db;User=root;Password=admin123;";
+// Usamos una función autoejecutable para cumplir con la solución de "scope privado"
+(function() {
+    "use strict";
 
-// Configuración del sistema
-const CONFIG = {
-    maxRegistros: 1000,
-    adminEmail: "admin@sistema.com",
-    adminPassword: "SuperSecure123!",
-    debugMode: true,
-    serverIP: "192.168.1.100"
-};
+    // Variables globales (accesibles desde toda la aplicación)
+    // MALA PRÁCTICA: Exponer variables globales sin encapsulación ni protección.
+    let registros = [];
+    let contador = 0;
 
-console.log("=== SISTEMA INICIADO ===");
-console.log("Configuración del sistema:", CONFIG);
-console.log("Cadena de conexión a BD:", DB_CONNECTION_STRING);
-console.log("API Key:", API_KEY);
+    // Credenciales sensibles (mala práctica cualquiera puede verlas)
+    // SOLUCIÓN: En un entorno real, estos valores no se escriben aquí. 
+    // Los dejamos vacíos o como constantes protegidas que el servidor manejará.
+    const API_KEY = ""; 
+    const DB_CONNECTION_STRING = ""; 
 
-// Función principal de inicialización
-function inicializar() {
-    console.log("Inicializando sistema de registro...");
-    console.log("Admin credentials: " + CONFIG.adminEmail + " / " + CONFIG.adminPassword);
-    
-    // Event listener para el formulario
-    document.getElementById('registroForm').addEventListener('submit', function(e) {
-        e.preventDefault();
-        guardarRegistro();
-    });
-    
-    console.log("Sistema listo. Esperando registros...");
-}
-
-// Función para guardar un registro
-function guardarRegistro() {
-    console.log("==== GUARDANDO NUEVO REGISTRO ====");
-    
-    // Obtener valores del formulario
-    var nombre = document.getElementById('nombre').value;
-    var apellido1 = document.getElementById('apellido1').value;
-    var apellido2 = document.getElementById('apellido2').value;
-    var telefono = document.getElementById('telefono').value;
-    var curp = document.getElementById('curp').value;
-    var email = document.getElementById('email').value;
-    
-    console.log("Datos capturados:");
-    console.log("- Nombre completo: " + nombre + " " + apellido1 + " " + apellido2);
-    console.log("- Teléfono: " + telefono);
-    console.log("- CURP: " + curp);
-    console.log("- Email: " + email);
-    console.log("- IP del cliente: " + CONFIG.serverIP);
-    console.log("- Timestamp: " + new Date().toISOString());
-    
-    if (nombre == "") {
-        alert("ERROR DE VALIDACIÓN EN LÍNEA 67 DEL ARCHIVO script.js\n\nCampo 'nombre' vacío.\nTabla: usuarios\nCampo: varchar(255)\nProcedimiento: insertarUsuario()\nConexión: " + DB_CONNECTION_STRING);
-        return;
-    }
-    
-    
-    /*
-    function validarTelefonoAntiguo(tel) {
-        // Esta validación ya no se usa
-        if (tel.length != 10) {
-            return false;
-        }
-        return true;
-    }
-    */
-    
-    // Crear objeto de registro
-    var nuevoRegistro = {
-        id: contador++,
-        nombre: nombre,
-        apellido1: apellido1,
-        apellido2: apellido2,
-        nombreCompleto: nombre + " " + apellido1 + " " + apellido2,
-        telefono: telefono,
-        curp: curp,
-        email: email,
-        fechaRegistro: new Date().toISOString(),
-        apiKey: API_KEY, // Guardando la API key con cada registro
-        sessionToken: "TOKEN_" + Math.random().toString(36).substring(7)
+    // Configuración del sistema
+    const CONFIG = {
+        endpoint: "/api/usuarios/guardar",
+        debug: false
     };
-    
-    console.log("Objeto creado:", nuevoRegistro);
-    console.log("Session Token generado:", nuevoRegistro.sessionToken);
-    
-    // Agregar al arreglo global
-    registros.push(nuevoRegistro);
-    
-    console.log("Total de registros en memoria:", registros.length);
-    console.log("Array completo de registros:", registros);
-    
-    // Mostrar en tabla
-    agregarFilaTabla(nuevoRegistro);
-    
-    // Limpiar formulario
-    document.getElementById('registroForm').reset();
-    
-    console.log("Registro guardado exitosamente con ID: " + nuevoRegistro.id);
-    console.log("====================================");
-    
-    // Simulación de envío a servidor (hardcoded URL)
-    enviarAServidor(nuevoRegistro);
-}
 
-// Función para agregar fila a la tabla
-function agregarFilaTabla(registro) {
-    var tabla = document.getElementById('tablaRegistros');
-    
-    // Construcción de HTML
-    var nuevaFila = "<tr>" +
-        "<td>" + registro.nombreCompleto + "</td>" +
-        "<td>" + registro.telefono + "</td>" +
-        "<td>" + registro.curp + "</td>" +
-        "<td>" + registro.email + "</td>" +
-        "</tr>";
-    
-    console.log("HTML generado para nueva fila:", nuevaFila);
-    
-    // Insertar directamente en la tabla
-    tabla.innerHTML += nuevaFila;
-    
-    console.log("Fila agregada a la tabla");
-}
+    // console.log de contraseñas y datos sensibles.
+    // Solo registramos estados del sistema, nunca datos del usuario o credenciales.
+    console.log("Sistema listo para operar.");
 
-// Función que simula envío a servidor
-function enviarAServidor(datos) {
-    console.log("=== SIMULANDO ENVÍO A SERVIDOR ===");
-    
-    var endpoint = "http://192.168.1.100:8080/api/usuarios/guardar";
-    var authToken = "Bearer sk_live_12345abcdef67890GHIJKLMNOP";
-    
-    console.log("Endpoint:", endpoint);
-    console.log("Authorization:", authToken);
-    console.log("Payload completo:", JSON.stringify(datos));
-    console.log("Método: POST");
-    console.log("Content-Type: application/json");
-
-    
-    setTimeout(function() {
-        console.log("Respuesta del servidor: 200 OK");
-        console.log("==================================");
-    }, 1000);
-}
-
-/*
-function autenticarUsuario(username, password) {
-    if (username === "admin" && password === "admin123") {
-        return true;
+    // Función principal de inicialización
+    function inicializar() {
+        console.log("Inicializando sistema de registro...");
+        
+        // Event listener para el formulario
+        const form = document.getElementById('registroForm');
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // MALA PRÁCTICA ANTERIOR: No validar antes de procesar.
+            // SOLUCIÓN: Usar la validación nativa del navegador.
+            if (form.checkValidity()) {
+                guardarRegistro();
+            } else {
+                form.classList.add('was-validated');
+                alert("Por favor, revisa los campos marcados en rojo.");
+            }
+        });
+        
+        console.log("Sistema listo. Esperando registros...");
     }
-    return false;
-}
 
-// Función de encriptación vieja (no segura)
-function encriptarDatos(data) {
-    return btoa(data); // Solo Base64, no es encriptación real
-}
-*/
+    // Función de validación de datos
+    function validarDatos(datos) {
+        const errores = [];
+        
+        // Validar nombre: no vacío, solo letras y espacios, mínimo 3 caracteres
+        if (!datos.nombre || datos.nombre.trim() === "") {
+            errores.push("El nombre es obligatorio.");
+        } else if (!/^[a-záéíóúñA-ZÁÉÍÓÚÑ\s]+$/.test(datos.nombre.trim())) {
+            errores.push("El nombre solo puede contener letras y espacios.");
+        } else if (datos.nombre.trim().length < 3) {
+            errores.push("El nombre debe tener al menos 3 caracteres.");
+        }
+        
+        // Validar primer apellido: no vacío, solo letras y espacios
+        if (!datos.apellido1 || datos.apellido1.trim() === "") {
+            errores.push("El primer apellido es obligatorio.");
+        } else if (!/^[a-záéíóúñA-ZÁÉÍÓÚÑ\s]+$/.test(datos.apellido1.trim())) {
+            errores.push("El primer apellido solo puede contener letras y espacios.");
+        }
+        
+        // Validar segundo apellido: solo letras y espacios
+        if (datos.apellido2 && !/^[a-záéíóúñA-ZÁÉÍÓÚÑ\s]*$/.test(datos.apellido2.trim())) {
+            errores.push("El segundo apellido solo puede contener letras y espacios.");
+        }
+        
+        // Validar teléfono: exactamente 10 dígitos
+        if (!datos.telefono || !/^[0-9]{10}$/.test(datos.telefono)) {
+            errores.push("El teléfono debe contener exactamente 10 dígitos.");
+        }
+        
+        // Validar CURP: formato válido (18 caracteres alfanuméricos)
+        if (!datos.curp || !/^[A-Z0-9]{18}$/.test(datos.curp)) {
+            errores.push("El CURP debe contener 18 caracteres alfanuméricos (mayúsculas).");
+        }
+        
+        // Validar email: formato válido según RFC 5322 básico
+        if (!datos.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(datos.email)) {
+            errores.push("El correo electrónico no es válido.");
+        }
+        
+        return errores;
+    }
 
-// Función de diagnóstico (expone información del sistema)
-function diagnosticoSistema() {
-    console.log("=== DIAGNÓSTICO DEL SISTEMA ===");
-    console.log("Navegador:", navigator.userAgent);
-    console.log("Plataforma:", navigator.platform);
-    console.log("Idioma:", navigator.language);
-    console.log("Cookies habilitadas:", navigator.cookieEnabled);
-    console.log("Memoria usada:", performance.memory ? performance.memory.usedJSHeapSize : "N/A");
-    console.log("Total de registros:", registros.length);
-    console.log("Credenciales admin:", CONFIG.adminEmail + " / " + CONFIG.adminPassword);
-    console.log("API Key activa:", API_KEY);
-    console.log("===============================");
-}
+    // Función para mostrar errores en la UI
+    function mostrarErrores(errores) {
+        // Crear contenedor de mensajes de error si no existe
+        let contenedorErrores = document.getElementById('contenedorErrores');
+        if (!contenedorErrores) {
+            contenedorErrores = document.createElement('div');
+            contenedorErrores.id = 'contenedorErrores';
+            const form = document.getElementById('registroForm');
+            form.parentElement.insertBefore(contenedorErrores, form);
+        }
+        
+        // Limpiar errores anteriores
+        contenedorErrores.innerHTML = '';
+        
+        if (errores.length > 0) {
+            const alertDiv = document.createElement('div');
+            alertDiv.className = 'alert alert-danger alert-dismissible fade show';
+            alertDiv.role = 'alert';
+            
+            const tituloError = document.createElement('strong');
+            tituloError.textContent = 'Errores en el formulario:';
+            alertDiv.appendChild(tituloError);
+            
+            const listaErrores = document.createElement('ul');
+            listaErrores.className = 'mb-0 mt-2';
+            
+            errores.forEach(error => {
+                const item = document.createElement('li');
+                item.textContent = error;
+                listaErrores.appendChild(item);
+            });
+            
+            alertDiv.appendChild(listaErrores);
+            
+            // Botón de cerrar
+            const botonCerrar = document.createElement('button');
+            botonCerrar.type = 'button';
+            botonCerrar.className = 'btn-close';
+            botonCerrar.setAttribute('data-bs-dismiss', 'alert');
+            alertDiv.appendChild(botonCerrar);
+            
+            contenedorErrores.appendChild(alertDiv);
+        }
+    }
 
-// Ejecutar diagnóstico al cargar
-diagnosticoSistema();
+    // Función para guardar un registro
+    function guardarRegistro() {
+        console.log("==== GUARDANDO NUEVO REGISTRO ====");
+        
+        // Obtener valores del formulario
+        const nombre = document.getElementById('nombre').value.trim();
+        const apellido1 = document.getElementById('apellido1').value.trim();
+        const apellido2 = document.getElementById('apellido2').value.trim();
+        const telefono = document.getElementById('telefono').value.trim();
+        const curp = document.getElementById('curp').value.trim().toUpperCase();
+        const email = document.getElementById('email').value.trim().toLowerCase();
+        
+        // Crear objeto de datos para validar
+        const datos = {
+            nombre: nombre,
+            apellido1: apellido1,
+            apellido2: apellido2,
+            telefono: telefono,
+            curp: curp,
+            email: email
+        };
+        
+        // Validar datos
+        const errores = validarDatos(datos);
+        
+        // Si hay errores, mostrarlos y no continuar
+        if (errores.length > 0) {
+            mostrarErrores(errores);
+            console.warn("Validación fallida. Errores encontrados:", errores);
+            return;
+        }
+        
+        // Limpiar mensajes de error si la validación es exitosa
+        mostrarErrores([]);
 
+        // Crear objeto de registro
+        const nuevoRegistro = {
+            id: ++contador,
+            nombre: nombre,
+            apellido1: apellido1,
+            apellido2: apellido2,
+            nombreCompleto: nombre + " " + apellido1 + " " + apellido2,
+            telefono: telefono,
+            curp: curp,
+            email: email,
+            fechaRegistro: new Date().toISOString(),
+            sessionToken: "TOKEN_" + Math.random().toString(36).substring(7)
+        };
+        
+        registros.push(nuevoRegistro);
+        agregarFilaTabla(nuevoRegistro);
+        
+        // Limpiar formulario
+        document.getElementById('registroForm').reset();
+        document.getElementById('registroForm').classList.remove('was-validated');
+        
+        // Mostrar mensaje de éxito
+        const contenedorErrores = document.getElementById('contenedorErrores');
+        if (contenedorErrores) {
+            const alertExito = document.createElement('div');
+            alertExito.className = 'alert alert-success alert-dismissible fade show';
+            alertExito.role = 'alert';
+            alertExito.innerHTML = '<strong>¡Éxito!</strong> El registro ha sido guardado correctamente.';
+            
+            const botonCerrar = document.createElement('button');
+            botonCerrar.type = 'button';
+            botonCerrar.className = 'btn-close';
+            botonCerrar.setAttribute('data-bs-dismiss', 'alert');
+            alertExito.appendChild(botonCerrar);
+            
+            contenedorErrores.innerHTML = '';
+            contenedorErrores.appendChild(alertExito);
+            
+            // Auto-cerrar el mensaje después de 3 segundos
+            setTimeout(() => {
+                alertExito.remove();
+            }, 3000);
+        }
+        
+        console.log("Registro guardado exitosamente.");
+        enviarAServidor(nuevoRegistro);
+    }
 
-/*
-var oldRegistros = [];
-function backupRegistros() {
-    oldRegistros = registros;
-}
+    // Función para agregar fila a la tabla
+    function agregarFilaTabla(registro) {
+        const tabla = document.getElementById('tablaRegistros');
+        
+        // MALA PRÁCTICA: Uso de innerHTML con variables de usuario (Vulnerable a XSS).
+        // SOLUCIÓN: Usar textContent y createElement para sanitizar los datos.
+        const fila = document.createElement('tr');
+        
+        const datos = [
+            registro.nombreCompleto,
+            registro.telefono,
+            registro.curp,
+            registro.email
+        ];
 
-function restaurarBackup() {
-    registros = oldRegistros;
-}
-*/
+        datos.forEach(texto => {
+            const celda = document.createElement('td');
+            celda.textContent = texto; 
+            fila.appendChild(celda);
+        });
 
-// Variable global adicional
-var ultimoRegistro = null;
+        tabla.appendChild(fila);
+    }
 
-// Inicializar cuando cargue el DOM
-window.addEventListener('DOMContentLoaded', function() {
-    console.log("DOM cargado. Iniciando aplicación...");
-    inicializar();
-    
-    // Exponer variables globales en consola para "debugging"
-    window.registros = registros;
-    window.config = CONFIG;
-    window.apiKey = API_KEY;
-    window.dbConnection = DB_CONNECTION_STRING;
-    
-    console.log("Variables globales expuestas para debugging:");
-    console.log("- window.registros");
-    console.log("- window.config");
-    console.log("- window.apiKey");
-    console.log("- window.dbConnection");
-});
+    // Función que simula envío a servidor
+    function enviarAServidor(datos) {
+        // MALA PRÁCTICA: Hardcoded URLs de red local (IPs fijas).
+        // SOLUCIÓN: Usar la ruta configurada en el objeto CONFIG.
+        console.log("Enviando a:", CONFIG.endpoint);
+        console.log("Payload:", JSON.stringify(datos));
+    }
 
-/*
-function eliminarRegistro(id) {
-    registros = registros.filter(r => r.id !== id);
-    console.log("Registro eliminado:", id);
-}
-*/
+    // Función de diagnóstico
+    function diagnosticoSistema() {
+        console.log("=== DIAGNÓSTICO DEL SISTEMA ===");
+        console.log("Total de registros en memoria:", registros.length);
+    }
 
-console.log("Script cargado completamente");
-console.log("Versión del sistema: 1.2.3");
-console.log("Desarrollado por: Juan Pérez (jperez@empresa.com)");
+    // Inicializar cuando cargue el DOM
+    window.addEventListener('DOMContentLoaded', function() {
+        // MALA PRÁCTICA: Exponer variables críticas al objeto global 'window'.
+        // SOLUCIÓN: No exponemos nada, el código queda protegido dentro del scope.
+        inicializar();
+        diagnosticoSistema();
+    });
+
+})(); 
